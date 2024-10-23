@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, conint, constr, validator
+from pydantic import BaseModel, Extra, Field, conint, constr, validator
 
 
 # Базовый класс схемы, от которого наследуем все остальные.
@@ -25,6 +25,9 @@ class CharityprojectCreate(BaseModel):
     #  не менее одного символа
     description: constr(strict=True, min_length=1) = Field(...)
     full_amount: conint(strict=True, gt=0) = Field(...)
+
+    class Config:
+        extra = Extra.forbid
 
     # @validator('name')
     # def name_cant_be_numeric(cls, value: str):
@@ -52,6 +55,7 @@ class CharityprojectUpdate(CharityprojectCreate):
 # чтобы снова не описывать обязательное поле name.
 class CharityprojectDB(CharityprojectBase, CharityprojectCreate):
     id: int 
+    full_amount: int
 
     class Config:
         orm_mode = True 

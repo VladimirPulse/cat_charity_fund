@@ -18,8 +18,11 @@ class DonationBase(BaseModel):
 
 
 class DonationCreate(BaseModel):
-    comment: Optional[constr(strict=True)] = Field(...)
+    comment: Optional[constr(strict=True)] = None
     full_amount: conint(strict=True, gt=0) = Field(...)
+
+    class Config:
+        extra = Extra.forbid
 
     # class Config:
     #     extra = Extra.forbid

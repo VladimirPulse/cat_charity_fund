@@ -16,6 +16,7 @@ from app.crud.charityproject import charity_project_crud
 from app.schemas.charityproject import (
     CharityprojectCreate, CharityprojectDB, CharityprojectUpdate
 )
+from app.services.invested import invest_in_project
 # from app.schemas.reservation import ReservationDB
 
 router = APIRouter() 
@@ -32,8 +33,12 @@ async def create_new_charity_project(
 ):
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
-    new_room = await charity_project_crud.create(charity_project, session)
-    return new_room
+    # charity_project = await invest_in_project(charity_project, session)
+    # new_room = await charity_project_crud.create(new_project=charity_project, session=session)
+    # return new_room
+    charity_project = await charity_project_crud.create(charity_project, session)
+    new_project = await invest_in_project(new_project=charity_project, session=session)
+    return new_project
 
 
 @router.get(
@@ -68,7 +73,8 @@ async def partially_update_charity_project(
     project = await charity_project_crud.update(
         project, obj_in, session
     )
-    return project
+    new_project = await invest_in_project(new_project=project, session=session)
+    return new_project
 
 
 @router.delete(

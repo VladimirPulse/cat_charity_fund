@@ -3,8 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
-    check_name_duplicate,
-    check_project_exists,
+    check_name_duplicate
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
@@ -13,6 +12,7 @@ from app.models.user import User
 from app.schemas.donation import (
     DonationCreate, DonationDB, DonationCreateDB
 )
+from app.services.invested import invest_in_project
 
 router = APIRouter() 
 
@@ -29,8 +29,9 @@ async def create_new_charity_project(
 ):
     """Только для авторизованных."""
     await check_name_duplicate(donation.full_amount, session)
-    new_room = await donation_crud.create(donation, session, user)
-    return new_room
+    db_donation = await donation_crud.create(donation, session, user)
+    new_donation = await invest_in_project(new_donation=db_donation, session=session)
+    return new_donation
 
 
 @router.get(
@@ -49,13 +50,14 @@ async def get_all_donation(
 @router.get(
     '/my',
     response_model=list[DonationCreateDB],
-    dependencies=[Depends(current_user)],
+    # dependencies=[Depends(current_user)],
 )
 async def get_all_donation(
         session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user),
 ):
     """Только для авторизованных."""
-    all_donations = await donation_crud.get_multi(session)
+    all_donations = await donation_crud.get_by_user(session, user)
     return all_donations
 
 
