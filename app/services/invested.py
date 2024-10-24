@@ -71,7 +71,7 @@ async def invest_in_project(
 ):
     if new_project:
         donations = await session.execute(
-            select(Donation).where(Donation.fully_invested == False))
+            select(Donation).where(Donation.fully_invested == 0))
         donations = donations.scalars().all()
         for donation in donations:
             if await _process_donation(session, donation, new_project):
@@ -81,7 +81,7 @@ async def invest_in_project(
         projects = await session.execute(
             select(
                 CharityProject).where(
-                    CharityProject.fully_invested == False))
+                    CharityProject.fully_invested == 0))
         projects = projects.scalars().all()
         for project in projects:
             if await _process_project(session, project, new_donation):
