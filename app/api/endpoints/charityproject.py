@@ -6,20 +6,18 @@ from app.api.validators import (
     check_project_remove,
     check_name_duplicate,
     check_project_exists,
-    check_project_full_amount
+    check_project_full_amount,
+    check_project_update
 )
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-# Вместо импортов 6 функций импортируйте объект meeting_room_crud.
 from app.crud.charityproject import charity_project_crud
-# from app.crud.reservation import reservation_crud
 from app.schemas.charityproject import (
     CharityprojectCreate, CharityprojectDB, CharityprojectUpdate
 )
 from app.services.invested import invest_in_project
-# from app.schemas.reservation import ReservationDB
 
-router = APIRouter() 
+router = APIRouter()
 
 
 @router.post(
@@ -33,11 +31,10 @@ async def create_new_charity_project(
 ):
     """Только для суперюзеров."""
     await check_name_duplicate(charity_project.name, session)
-    # charity_project = await invest_in_project(charity_project, session)
-    # new_room = await charity_project_crud.create(new_project=charity_project, session=session)
-    # return new_room
-    charity_project = await charity_project_crud.create(charity_project, session)
-    new_project = await invest_in_project(new_project=charity_project, session=session)
+    charity_project = await charity_project_crud.create(
+        charity_project, session)
+    new_project = await invest_in_project(
+        new_project=charity_project, session=session)
     return new_project
 
 
@@ -69,7 +66,9 @@ async def partially_update_charity_project(
     if obj_in.name is not None:
         await check_name_duplicate(obj_in.name, session)
     if obj_in.full_amount is not None:
-        await check_project_full_amount(project_id, obj_in.full_amount, session)
+        await check_project_full_amount(
+            project_id, obj_in.full_amount, session)
+    project = await check_project_update(project, obj_in)
     project = await charity_project_crud.update(
         project, obj_in, session
     )
@@ -91,24 +90,5 @@ async def remove_project(
         project_id, session
     )
     await check_project_remove(project)
-    # Замените вызов функции на вызов метода.
     project = await charity_project_crud.remove(project, session)
     return project
-
-# @router.get(
-#     '/{meeting_room_id}/reservations',
-#     response_model=list[ReservationDB],
-#     # Добавляем множество с полями, которые надо исключить из ответа.
-#     response_model_exclude={'user_id'},
-# )
-# async def get_reservations_for_room(
-#         meeting_room_id: int,
-#         session: AsyncSession = Depends(get_async_session),
-# ):
-#     await check_meeting_room_exists(meeting_room_id, session)
-#     # Замените вызов функции на вызов метода.
-#     reservations = await reservation_crud.get_future_reservations_for_room(
-#         meeting_room_id,
-#         session
-#     )
-#     return reservations

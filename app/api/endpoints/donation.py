@@ -14,7 +14,7 @@ from app.schemas.donation import (
 )
 from app.services.invested import invest_in_project
 
-router = APIRouter() 
+router = APIRouter()
 
 
 @router.post(
@@ -30,7 +30,8 @@ async def create_new_charity_project(
     """Только для авторизованных."""
     await check_name_duplicate(donation.full_amount, session)
     db_donation = await donation_crud.create(donation, session, user)
-    new_donation = await invest_in_project(new_donation=db_donation, session=session)
+    new_donation = await invest_in_project(
+        new_donation=db_donation, session=session)
     return new_donation
 
 
@@ -50,7 +51,6 @@ async def get_all_donation(
 @router.get(
     '/my',
     response_model=list[DonationCreateDB],
-    # dependencies=[Depends(current_user)],
 )
 async def get_all_donation(
         session: AsyncSession = Depends(get_async_session),
@@ -59,18 +59,3 @@ async def get_all_donation(
     """Только для авторизованных."""
     all_donations = await donation_crud.get_by_user(session, user)
     return all_donations
-
-
-# @router.delete(
-#     '/{donation_id}',
-#     response_model=DonationDB,
-#     dependencies=[Depends(current_superuser)],
-# )
-# async def remove_project(
-#         donation_id: int,
-#         session: AsyncSession = Depends(get_async_session),
-# ):
-#     """Только для суперюзеров."""
-#     project = await donation_crud.get(donation_id, session)
-#     project = await donation_crud.remove(project, session)
-#     return project

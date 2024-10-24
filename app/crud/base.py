@@ -12,7 +12,7 @@ class CRUDBase:
         self.model = model
 
     async def get(
-            self, 
+            self,
             obj_id: int,
             session: AsyncSession,
     ):
@@ -24,23 +24,20 @@ class CRUDBase:
         return db_obj.scalars().first()
 
     async def get_multi(
-            self, 
+            self,
             session: AsyncSession
     ):
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
     async def create(
-            self, 
+            self,
             obj_in,
             session: AsyncSession,
-            # Добавьте опциональный параметр user.
             user: Optional[User] = None
     ):
         obj_in_data = obj_in.dict()
-        # Если пользователь был передан...
         if user is not None:
-            # ...то дополнить словарь для создания модели.
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
