@@ -1,17 +1,14 @@
 from fastapi import APIRouter, Depends
-
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (
-    check_name_duplicate
-)
+from app.api.validators import check_name_duplicate
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
 from app.crud.donation import donation_crud
+from app.models import CharityProject
 from app.models.user import User
-from app.schemas.donation import (
-    DonationCreate, DonationDB, DonationCreateDB
-)
+from app.schemas.donation import DonationCreate, DonationCreateDB, DonationDB
 from app.services.invested import invest_in_project
 
 router = APIRouter()
@@ -29,10 +26,18 @@ async def create_new_charity_project(
 ):
     """Только для авторизованных."""
     await check_name_duplicate(donation.full_amount, session)
-    db_donation = await donation_crud.create(donation, session, user)
-    new_donation = await invest_in_project(
-        new_donation=db_donation, session=session)
-    return new_donation
+    db_donation = await donation_crud.create(
+        donation, session, user, for_commit=False)
+    projects = (await session.execute(
+        select(CharityProject).where(CharityProject.fully_invested == 0)
+    )).scalars().all()
+    objects = invest_in_project(
+        target=db_donation, sources=projects)
+    for obj in objects:
+        session.add(obj)
+    await session.commit()
+    await session.refresh(db_donation)
+    return db_donation
 
 
 @router.get(
@@ -44,8 +49,7 @@ async def get_all_donation(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Только для суперюзеров."""
-    all_donations = await donation_crud.get_multi(session)
-    return all_donations
+    return await donation_crud.get_multi(session)
 
 
 @router.get(
@@ -57,5 +61,4 @@ async def get_all_donation(
         user: User = Depends(current_user),
 ):
     """Только для авторизованных."""
-    all_donations = await donation_crud.get_by_user(session, user)
-    return all_donations
+    return await donation_crud.get_by_user(session, user)

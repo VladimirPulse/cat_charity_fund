@@ -1,5 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
+
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,10 +50,10 @@ async def check_project_full_amount(
     return project
 
 
-async def check_project_remove(
+def check_project_remove(
         project: CharityProject,
 ) -> CharityProject:
-    if project.fully_invested is True or project.invested_amount > 0:
+    if project.fully_invested or project.invested_amount > 0:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='В проект были внесены средства, не подлежит удалению!'
@@ -60,11 +61,11 @@ async def check_project_remove(
     return project
 
 
-async def check_project_update(
+def check_project_update(
         project: CharityProject,
         obj_in: CharityprojectUpdate
 ) -> CharityProject:
-    if project.fully_invested is True:
+    if project.fully_invested:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Проект был закрыт, не подлежит редактированию!'
