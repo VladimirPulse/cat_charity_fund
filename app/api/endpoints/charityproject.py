@@ -28,7 +28,6 @@ async def create_new_charity_project(
     await check_name_duplicate(charity_project.name, session)
     charity_project = await charity_project_crud.create(
         charity_project, session, for_commit=False)
-    # import pdb; pdb.set_trace()
     session.add_all(
         invest_in_project(
             target=charity_project,
