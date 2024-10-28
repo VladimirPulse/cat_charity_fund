@@ -5,7 +5,7 @@ from pydantic import BaseModel, Extra, Field, conint, constr
 
 
 class CharityprojectBase(BaseModel):
-    invested_amount: int = Field(0)
+    invested_amount: int = Field(default=0)
     fully_invested: bool
     create_date: datetime = Field(datetime.now() + timedelta(minutes=10))
     close_date: Optional[datetime]

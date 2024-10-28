@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (check_name_duplicate, check_project_exists,
@@ -29,13 +28,14 @@ async def create_new_charity_project(
     await check_name_duplicate(charity_project.name, session)
     charity_project = await charity_project_crud.create(
         charity_project, session, for_commit=False)
-    donations = (await session.execute(
-        select(Donation).where(Donation.fully_invested == 0)
-    )).scalars().all()
-    objects = invest_in_project(
-        target=charity_project, sources=donations)
-    for obj in objects:
-        session.add(obj)
+    # import pdb; pdb.set_trace()
+    session.add_all(
+        invest_in_project(
+            target=charity_project,
+            sources=await charity_project_crud.open_objects(
+                Donation, session)
+        )
+    )
     await session.commit()
     await session.refresh(charity_project)
     return charity_project
@@ -74,13 +74,13 @@ async def partially_update_charity_project(
     project = await charity_project_crud.update(
         project, obj_in, session, for_commit=False
     )
-    donations = (await session.execute(
-        select(Donation).where(Donation.fully_invested == 0)
-    )).scalars().all()
-    objects = invest_in_project(
-        target=project, sources=donations)
-    for obj in objects:
-        session.add(obj)
+    session.add_all(
+        invest_in_project(
+            target=project,
+            sources=await charity_project_crud.open_objects(
+                Donation, session)
+        )
+    )
     await session.commit()
     await session.refresh(project)
     return project

@@ -1,8 +1,8 @@
-"""First migration
+"""New BaseModel - BaseModelCatFund
 
-Revision ID: 80c433037560
+Revision ID: 67887960e9c0
 Revises: 
-Create Date: 2024-10-27 13:55:16.199674
+Create Date: 2024-10-27 21:59:18.855580
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '80c433037560'
+revision = '67887960e9c0'
 down_revision = None
 branch_labels = None
 depends_on = None

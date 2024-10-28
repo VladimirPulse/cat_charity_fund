@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import check_name_duplicate
@@ -28,13 +27,13 @@ async def create_new_charity_project(
     await check_name_duplicate(donation.full_amount, session)
     db_donation = await donation_crud.create(
         donation, session, user, for_commit=False)
-    projects = (await session.execute(
-        select(CharityProject).where(CharityProject.fully_invested == 0)
-    )).scalars().all()
-    objects = invest_in_project(
-        target=db_donation, sources=projects)
-    for obj in objects:
-        session.add(obj)
+    session.add_all(
+        invest_in_project(
+            target=db_donation,
+            sources=await donation_crud.open_objects(
+                CharityProject, session)
+        )
+    )
     await session.commit()
     await session.refresh(db_donation)
     return db_donation

@@ -38,6 +38,9 @@ class CRUDBase:
         obj_in_data = obj_in.dict()
         if user is not None:
             obj_in_data['user_id'] = user.id
+        if not for_commit:
+            obj_in_data['invested_amount'] = 0
+            obj_in_data['fully_invested'] = False
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
         if for_commit:
@@ -71,3 +74,12 @@ class CRUDBase:
         await session.delete(db_obj)
         await session.commit()
         return db_obj
+
+    async def open_objects(
+            self,
+            model,
+            session: AsyncSession,
+    ):
+        return (await session.execute(
+            select(model).where(model.fully_invested == 0)
+        )).scalars().all()
