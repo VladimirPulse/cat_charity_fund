@@ -19,22 +19,14 @@ class BaseModelCatFund(Base):
             name='check_invested_amount_positive'
         ),
         CheckConstraint(
-            '(invested_amount >= 0 AND invested_amount <= full_amount) '
-            'OR (invested_amount > 0 AND full_amount = 0)',
+            '(invested_amount >= 0 OR invested_amount <= full_amount)',
             name='check_invested_amount_limit'
         )
     )
 
     def __repr__(self):
         return (
-            f'<{type(self).__name__}(full_amount={self.full_amount})>, '
-            f'<invested_amount={self.invested_amount}>, '
-            f'<fully_invested={self.fully_invested})>'
-        )
-
-    def __str__(self):
-        return (
-            f'{type(self).__name__}, '
-            f'{self.full_amount=}, {self.invested_amount=}, '
-            f'{self.fully_invested=}'
+            f'<{type(self).__name__}({self.full_amount=}>, '
+            f'<{self.invested_amount=}>, '
+            f'<{self.fully_invested=})>'
         )

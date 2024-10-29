@@ -8,7 +8,6 @@ class CharityProject(BaseModelCatFund):
     description = Column(Text, nullable=False)
 
     def __repr__(self):
-        base_repr = super().__repr__()
         return (
-            f'{base_repr}, {self.name=}, Description: {self.description}'
+            f'{super().__repr__()}, {self.name=}, {self.description=}'
         )

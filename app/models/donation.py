@@ -12,5 +12,6 @@ class Donation(BaseModelCatFund):
     )
 
     def __repr__(self):
-        base_repr = super().__repr__()
-        return f'{base_repr}, Comment: {self.comment}, User ID: {self.user_id}'
+        return (
+            f'{super().__repr__()}, {self.comment=}, {self.user_id=}'
+        )
