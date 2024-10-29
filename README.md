@@ -30,5 +30,4 @@
 == Проект Кулакова В.С. ==
 
 Этот проект был разработан Кулаковым В.С., студентом Яндекс-практикума. 
-Контакт: [[mailto:VrachKulakovVS@mail.ru|VrachKulakovVS@mail.ru]].
-
+Контакт: [VrachKulakovVS@mail.ru](mailto:VrachKulakovVS@mail.ru).

@@ -16,10 +16,14 @@ class BaseModelCatFund(Base):
     __table_args__ = (
         CheckConstraint(
             'full_amount >= 0',
-            name='check_invested_amount_positive'
+            name='check_full_amount_positive'
         ),
         CheckConstraint(
-            '(invested_amount >= 0 OR invested_amount <= full_amount)',
+            'invested_amount >= 0',
+            name='check_invested_positive'
+        ),
+        CheckConstraint(
+            'invested_amount <= full_amount',
             name='check_invested_amount_limit'
         )
     )

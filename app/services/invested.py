@@ -10,16 +10,16 @@ def invest_in_project(
 ) -> List[BaseModelCatFund]:
     updated = []
     for source in sources:
-        if target.fully_invested:
-            break
-        remaining_source = source.full_amount - source.invested_amount
-        available_target = target.full_amount - target.invested_amount
-        investment_amount = min(remaining_source, available_target)
+        investment_amount = min(
+            source.full_amount - source.invested_amount,
+            target.full_amount - target.invested_amount
+        )
         for obj in (target, source):
             obj.invested_amount += investment_amount
             if obj.full_amount == obj.invested_amount:
                 obj.fully_invested = True
                 obj.close_date = datetime.utcnow()
-                updated.append(obj)
-        updated.append(obj)
+        if target.fully_invested:
+            updated.extend([target, source])
+            break
     return updated
