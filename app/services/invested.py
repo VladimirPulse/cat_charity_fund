@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import List
 
 from app.models.base_model import BaseModelCatFund
 
 
 def invest_in_project(
         target: BaseModelCatFund,
-        sources: List[BaseModelCatFund]
-) -> List[BaseModelCatFund]:
+        sources: list[BaseModelCatFund]
+) -> list[BaseModelCatFund]:
     updated = []
     for source in sources:
         investment_amount = min(
@@ -19,7 +18,7 @@ def invest_in_project(
             if obj.full_amount == obj.invested_amount:
                 obj.fully_invested = True
                 obj.close_date = datetime.utcnow()
+        updated.append(source)
         if target.fully_invested:
-            updated.extend([target, source])
             break
     return updated
